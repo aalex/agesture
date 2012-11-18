@@ -1,0 +1,29 @@
+Agesture
+========
+
+Software for detecting audio gestures.
+
+Authors and license
+-------------------
+
+Authors: Alexandre Quessy
+
+(c) 2012 Alexandre Quessy
+
+License: GPL v3 or above
+
+
+Installation and usage
+----------------------
+
+Here is how to build and install it on Ubuntu Precise 12.04.
+
+Install the dependencies::
+
+  sudo apt-get install build-essential bison flex autotools-dev autoconf-archive
+  sudo apt-get install libclutter-1.0-dev libglib2.0-dev liblo0-dev
+
+Build::
+
+  ./one_step_build.sh
+
