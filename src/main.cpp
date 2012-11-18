@@ -126,12 +126,13 @@ void AudioGestureApp::handleSpectrum(const std::vector<double> &amplitudes)
         std::ostringstream os;
         os << FREQ_RECTANGLE_PREFIX;
         os << i;
-        std::cout << os.str();
+        //std::cout << "actor: " << os.str() << " ";
         ClutterActor *rect = clutter_container_find_child_by_name(CLUTTER_CONTAINER(this->stage_), os.str().c_str());
         double amp = amplitudes[i];
-        clutter_actor_set_height(rect, std::abs(amp * 100000));
+        float height = std::abs(100 - amp * 10);
+        //std::cout << "height: " << height << std::endl;
+        clutter_actor_set_height(rect, height);
     }
-
 
     // TODO:
     if (this->is_learning_ || this->is_detecting_)
@@ -258,7 +259,9 @@ bool AudioGestureApp::createGUI()
     for (unsigned int i = 0; i < NUM_SPECTRAL_BANDS; i++)
     {
         std::ostringstream os;
-        os << FREQ_RECTANGLE_PREFIX + i;
+        os << FREQ_RECTANGLE_PREFIX;
+        os << i;
+        //std::cout << "add actor " << os.str() << std::endl;
         ClutterActor *rect = clutter_rectangle_new_with_color(&RED);
         clutter_actor_set_size(rect, 10.0f, 10.0f);
         clutter_actor_set_name(rect, os.str().c_str());
