@@ -31,7 +31,8 @@ AC_CHECK_FUNCS([gettimeofday memmove mkdir setenv sqrt strchr strpbrk uname])
 
 AX_PTHREAD
 
-CXXFLAGS+=" -Wall -Wextra -Wfatal-errors -Werror -Wnon-virtual-dtor "
+CXXFLAGS+=" -Wall "
+dnl -Wextra -Wfatal-errors -Werror -Wnon-virtual-dtor "
 
 #Set LIBLO with pkg-config
 PKG_CHECK_MODULES(LIBLO, liblo, have_liblo=true, have_liblo=false)

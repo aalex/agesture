@@ -41,7 +41,7 @@ static gboolean message_handler(GstBus * bus, GstMessage * message, gpointer dat
                 if (mag != NULL && phase != NULL)
                 {
                     //g_print("band %d (freq %g): magnitude %f dB phase %f\n", i, freq, g_value_get_float(mag), g_value_get_float(phase));
-                    g_print("%f ", g_value_get_float(mag));
+                    g_print("%1.1f ", g_value_get_float(mag));
                 }
             }
           g_print("\n");
