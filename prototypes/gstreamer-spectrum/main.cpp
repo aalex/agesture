@@ -3,12 +3,10 @@
 #include <stdlib.h>
 #include <gst/gst.h>
 
-static const guint SPECT_BANDS = 20;
+static const guint NUM_SPECTRAL_BANDS = 20;
 static const char * const SPECTRUM_ELEMENT_NAME = "spectrum";
 static const char * const AUDIO_SOURCE_TYPE = "jackaudiosrc";
-
-// #define AUDIOFREQ 32000
-static const int AUDIOFREQ = 48000;
+static const int AUDIO_SAMPLING_RATE = 48000;
 
 /* receive spectral data from element message */
 static gboolean message_handler(GstBus * bus, GstMessage * message, gpointer data)
@@ -25,21 +23,25 @@ static gboolean message_handler(GstBus * bus, GstMessage * message, gpointer dat
             guint i;
 
             if (! gst_structure_get_clock_time(s, "endtime", &endtime))
+            {
                 endtime = GST_CLOCK_TIME_NONE;
+            }
 
-            g_print("New spectrum message, endtime %" GST_TIME_FORMAT "\n", GST_TIME_ARGS(endtime));
+            //g_print("New spectrum message, endtime %" GST_TIME_FORMAT "\n", GST_TIME_ARGS(endtime));
 
             const GValue *magnitudes = gst_structure_get_value(s, "magnitude");
             const GValue *phases = gst_structure_get_value(s, "phase");
 
-            for (i = 0; i < SPECT_BANDS; ++i)
+            g_print("spectrum: ");
+            for (i = 0; i < NUM_SPECTRAL_BANDS; ++i)
             {
-                freq = (gdouble) ((AUDIOFREQ / 2) * i + AUDIOFREQ / 4) / SPECT_BANDS;
+                freq = (gdouble) ((AUDIO_SAMPLING_RATE / 2) * i + AUDIO_SAMPLING_RATE / 4) / NUM_SPECTRAL_BANDS;
                 const GValue *mag = gst_value_list_get_value(magnitudes, i);
                 const GValue *phase = gst_value_list_get_value(phases, i);
                 if (mag != NULL && phase != NULL)
                 {
-                    g_print("band %d (freq %g): magnitude %f dB phase %f\n", i, freq, g_value_get_float(mag), g_value_get_float(phase));
+                    //g_print("band %d (freq %g): magnitude %f dB phase %f\n", i, freq, g_value_get_float(mag), g_value_get_float(phase));
+                    g_print("%f ", g_value_get_float(mag));
                 }
             }
           g_print("\n");
@@ -53,7 +55,6 @@ int main(int argc, char *argv[])
     GstElement *bin;
     GstElement *src, *audioconvert, *spectrum, *sink;
     GstBus *bus;
-    GstCaps *caps;
     GMainLoop *loop;
 
     gst_init(&argc, &argv);
@@ -66,7 +67,7 @@ int main(int argc, char *argv[])
     spectrum = gst_element_factory_make("spectrum", SPECTRUM_ELEMENT_NAME);
     g_assert(spectrum); 
     g_object_set(G_OBJECT(spectrum),
-        "bands", SPECT_BANDS,
+        "bands", NUM_SPECTRAL_BANDS,
         "threshold", -80,
         "message", TRUE,
         "message-phase", TRUE,
@@ -77,13 +78,14 @@ int main(int argc, char *argv[])
 
     gst_bin_add_many(GST_BIN(bin), src, audioconvert, spectrum, sink, NULL);
 
-    caps = gst_caps_new_simple("audio/x-raw", "rate", G_TYPE_INT, AUDIOFREQ, NULL);
 
     if (! gst_element_link(src, audioconvert))
     {
         fprintf(stderr, "can't link src to audioconvert\n");
         exit(1);
     }
+    // TODO: use the caps
+    GstCaps *caps = gst_caps_new_simple("audio/x-raw", "rate", G_TYPE_INT, AUDIO_SAMPLING_RATE, NULL);
     if (! gst_element_link(audioconvert, spectrum))
     //if (! gst_element_link_filtered(audioconvert, spectrum, caps))
     {
