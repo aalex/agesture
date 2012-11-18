@@ -1,0 +1,6 @@
+libann-dev: LGPL (two share the same name)
+libflann-dev: BSD (badly packaged!)
+libtimbl3-dev: GPL (requires libxml2, libgomp (parallel programming))
+Into: (not in Debian) GPL (requires Qt4, Javascript...)
+libkdtree++-dev: BSD
+
