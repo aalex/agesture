@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT(agesture, [0.0.9], [http://github.com/aalex/agesture/issues], [agesture], [http://github.com/aalex/agesture])
+AC_INIT(agesture, [0.1.0], [http://github.com/aalex/agesture/issues], [agesture], [http://github.com/aalex/agesture])
 AC_CONFIG_MACRO_DIR([m4])
 AC_MSG_NOTICE([Configuring agesture])
 AM_INIT_AUTOMAKE([subdir-objects -Wno-portability])
