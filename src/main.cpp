@@ -71,10 +71,12 @@ class AudioGestureApp
         void handleSpectrum(const std::vector<double> &amplitudes);
         bool startLearning(const char *name);
         bool startDetecting();
+        void toggleFullscreen();
     private:
         agesture::NearestNeighborFinder finder_;
         bool is_detecting_;
         bool is_learning_;
+        bool fullscreen_;
         agesture::NearestNeighborFinder::Path current_learn_or_detect_path_;
         std::string name_of_current_learn_path_;
         ClutterActor *detect_button_;
@@ -119,6 +121,18 @@ bool AudioGestureApp::startDetecting()
     return true;
 }
 
+
+void AudioGestureApp::toggleFullscreen()
+{
+    this->fullscreen_ = ! fullscreen_;
+    //if (verbose_)
+    //    std::cout << "App::" << __FUNCTION__ << ": " << fullscreen_ << std::endl;
+    if (fullscreen_)
+        clutter_stage_set_fullscreen(CLUTTER_STAGE(stage_), TRUE);
+    else
+        clutter_stage_set_fullscreen(CLUTTER_STAGE(stage_), FALSE);
+}
+
 void AudioGestureApp::handleSpectrum(const std::vector<double> &amplitudes)
 {
     for (unsigned int i = 0; i < NUM_SPECTRAL_BANDS; i++)
@@ -135,37 +149,37 @@ void AudioGestureApp::handleSpectrum(const std::vector<double> &amplitudes)
     }
 
     // TODO:
-    if (this->is_learning_ || this->is_detecting_)
-    {
-        // store it
-        if (this->current_learn_or_detect_path_.size() < LENGTH)
-            this->current_learn_or_detect_path_.push_back(amplitudes);
-        else
-        {
-            // learn it
-            if (this->is_learning_)
-            {
-                bool ok = this->finder_.learn(this->name_of_current_learn_path_.c_str(), this->current_learn_or_detect_path_);
-                if (! ok)
-                {
-                    std::cout << "error learning!" << std::endl;
-                }
-            }
-            else // try to find a learned that matches
-            {
-                std::string name;
-                if (this->finder_.findClosest(this->current_learn_or_detect_path_, name))
-                {
-                    std::cout << "found match " << name << std::endl;
-                }
-                else
-                {
-                    std::cout << "did not find match" << std::endl;
-                }
-            }
-            this->current_learn_or_detect_path_.clear();
-        }
-    }
+//     if (this->is_learning_ || this->is_detecting_)
+//     {
+//         // store it
+//         if (this->current_learn_or_detect_path_.size() < LENGTH)
+//             this->current_learn_or_detect_path_.push_back(amplitudes);
+//         else
+//         {
+//             // learn it
+//             if (this->is_learning_)
+//             {
+//                 bool ok = this->finder_.learn(this->name_of_current_learn_path_.c_str(), this->current_learn_or_detect_path_);
+//                 if (! ok)
+//                 {
+//                     std::cout << "error learning!" << std::endl;
+//                 }
+//             }
+//             else // try to find a learned that matches
+//             {
+//                 std::string name;
+//                 if (this->finder_.findClosest(this->current_learn_or_detect_path_, name))
+//                 {
+//                     std::cout << "found match " << name << std::endl;
+//                 }
+//                 else
+//                 {
+//                     std::cout << "did not find match" << std::endl;
+//                 }
+//             }
+//             this->current_learn_or_detect_path_.clear();
+//         }
+//     }
 }
 
 static void key_event_cb(ClutterActor *actor, ClutterKeyEvent *event, gpointer user_data)
@@ -175,6 +189,9 @@ static void key_event_cb(ClutterActor *actor, ClutterKeyEvent *event, gpointer u
     bool ctrl_pressed = (state & CLUTTER_CONTROL_MASK ? true : false);
     switch (event->keyval)
     {
+        case CLUTTER_Escape:
+            app->toggleFullscreen();
+            break;
         case CLUTTER_KEY_q:
             if (ctrl_pressed)
                 clutter_main_quit();
@@ -268,6 +285,15 @@ bool AudioGestureApp::createGUI()
         clutter_actor_set_position(rect, 400.0f + 30.0f * i, 400.0f);
         clutter_actor_set_anchor_point_from_gravity(rect, CLUTTER_GRAVITY_CENTER);
         clutter_container_add_actor(CLUTTER_CONTAINER(stage_), rect);
+
+        ClutterColor color =
+        {
+            g_random_int_range ( 0, 255),
+            g_random_int_range ( 0, 255),
+            g_random_int_range ( 0, 255),
+            255
+        };
+        clutter_rectangle_set_color(CLUTTER_RECTANGLE(rect), &color);
     }
 
     // timeline to attach a callback for each frame that is rendered
